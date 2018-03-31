@@ -10,6 +10,7 @@
 ;; Author: Arthur Danskin <arthurdanskin@gmail.com>
 ;; Maintainer: Dmitri Akatov <akatov@gmail.com>
 ;; URL: https://github.com/akatov/pretty-mode
+;; Package-Version: 20160614.1146
 ;; Keywords: pretty, unicode, symbols
 ;; Version: 2.0.3
 
@@ -151,7 +152,8 @@ implied mode from MODE and return it."
     python-mode sml-mode jess-mode clips-mode clojure-mode
     lisp-mode emacs-lisp-mode scheme-mode sh-mode
     perl-mode c++-mode c-mode haskell-mode
-    javascript-mode coffee-mode groovy-mode fsharp-mode)
+    javascript-mode coffee-mode groovy-mode fsharp-mode
+    rust-mode)
   "A list of all supported modes.")
 
 (defun ensure-modes (modes)
@@ -334,7 +336,7 @@ expected by `pretty-patterns'"
 Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
   (let* ((lispy '(scheme emacs-lisp lisp clojure jess clips))
          (mley '(haskell tuareg sml fsharp))
-         (c-like '(c c++ perl sh python java ess ruby javascript coffee groovy))
+         (c-like '(c c++ rust perl sh python java ess ruby javascript coffee groovy))
          (all (append lispy mley c-like (list 'octave))))
     (pretty-compile-patterns
      `(
@@ -354,10 +356,10 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
 
        ;;; 226A ≪ MUCH LESS-THAN
        (?\u226A :ll (:ordering :ordering-double)
-                (:<< "<<" haskell ruby c c++ java javascript coffee))
+                (:<< "<<" haskell ruby c c++ rust java javascript coffee))
        ;;; 226B ≫ MUCH GREATER-THAN
        (?\u226B :gg (:ordering :ordering-double)
-                (:>> ">>" haskell ruby c c++ java javascript coffee))
+                (:>> ">>" haskell ruby c c++ rust java javascript coffee))
        ;;; 2264 ≤ LESS-THAN OR EQUAL TO
        (?\u2264 :leq (:ordering)
                 (:<= "<=" ,@all))
@@ -369,7 +371,7 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
                 (:<<< "<<<" haskell))        ; Control.Arrow
        ;;; 22D9 ⋙ VERY MUCH GREATER-THAN
        (?\u22D9 :ggg (:ordering :ordering-triple)
-                (:>>> ">>>" haskell ruby c c++ java javascript coffee))        ; Control.Arrow
+                (:>>> ">>>" haskell ruby c c++ rust java javascript coffee))        ; Control.Arrow
 
        ;;; Equality
 
@@ -402,14 +404,14 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
 
        ;;; 00AC ¬ NOT SIGN
        (?\u00AC :neg (:logic)
-                (:! "!" c c++ perl sh ruby javascript)
+                (:! "!" c c++ rust perl sh ruby javascript)
                 (:not "not" ,@lispy haskell sml fsharp))
 
        ;;; 2227 ∧ LOGICAL AND
        (?\u2227 :wedge (:logic)
                 (:and "and" ,@lispy python ruby coffee)
                 (:andalso "andalso" sml)
-                (:&& "&&" c c++ perl haskell ruby javascript coffee fsharp))
+                (:&& "&&" c c++ rust perl haskell ruby javascript coffee fsharp))
 
        ;;; 22AB ⊫ DOUBLE VERTICAL BAR DOUBLE RIGHT TURNSTILE
        (?\u22AB :models (:logic :logic-extended)
@@ -419,7 +421,7 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
        (?\u2228 :vee (:logic)
                 (:or "or" ,@lispy python ruby coffee)
                 (:orelse "orelse" sml)
-                (:|| "||" c c++ perl haskell ruby javascript coffee fsharp))
+                (:|| "||" c c++ rust perl haskell ruby javascript coffee fsharp))
 
        ;;; 22C0 ⋀ N-ARY LOGICAL AND
        (?\u22C0 :bigwedge (:logic :logic-nary)
@@ -737,7 +739,8 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
        ;; 03C0 π GREEK SMALL LETTER PI
        (?\u03C0 :pi (:greek :greek-lowercase)
                 (:pi "pi" ,@all)
-                (:M_PI "M_PI" c c++))
+                (:M_PI "M_PI" c c++)
+                (:PI "PI" rust))
 
        ;; 03C1 ρ GREEK SMALL LETTER RHO
        (?\u03C1 :rho (:greek :greek-lowercase)
@@ -803,7 +806,7 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
 
        ;; 2190 ← LEFTWARDS ARROW
        (?\u2190 :leftarrow (:arrows)
-                (:<- "<-" ,@mley ess ,@lispy))
+                (:<- "<-" rust ,@mley ess ,@lispy))
 
        ;; 219E ↞ LEFTWARDS TWO HEADED ARROW
        (?\u219E :twoheadleftarrow (:arrows :arrows-twoheaded)
@@ -815,7 +818,7 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
 
        ;; 2192 → RIGHTWARDS ARROW
        (?\u2192 :rightarrow (:arrows)
-                (:-> "->" ,@mley ess c c++ perl ,@lispy coffee groovy))
+                (:-> "->" ,@mley ess c c++ rust perl ,@lispy coffee groovy))
 
        ;; 21A0 ↠ RIGHTWARDS TWO HEADED ARROW
        (?\u21A0 :twoheadrightarrow (:arrows :arrows-twoheaded)
@@ -823,7 +826,7 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
 
        ;; 21D2 ⇒ RIGHTWARDS DOUBLE ARROW
        (?\u21D2 :Rightarrow (:arrows)
-                (:=> "=>" sml perl ruby ,@lispy haskell coffee))
+                (:=> "=>" rust sml perl ruby ,@lispy haskell coffee))
 
        ;; 21D4 ⇔ LEFT RIGHT DOUBLE ARROW
        (?\u21D4 :eftrightarrow (:arrows)
@@ -863,8 +866,8 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
                 (:null "null" scheme java coffee javascript)
                 (:\'\(\) "'()" scheme)
                 (:empty "empty" scheme)
-                (:NULL "NULL" c c++ ess)
-                (:nullptr "nullptr" c++)
+                (:NULL "NULL" c c++ rust ess)
+                (:nullptr "nullptr" c++ rust)
                 (:None "None" python)
                 (:\(\) "()" ,@mley)
                 (:\[\] "[]" ,@mley))
@@ -886,7 +889,7 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
 
        ;; 29FA ⧺ DOUBLE PLUS
        (?\u29FA :++ (:arithmetic :arithmetic-double)
-                (:++ "++" haskell c c++ java javascript coffee))
+                (:++ "++" haskell c c++ rust java javascript coffee))
 
        ;; 29FB ⧻ TRIPLE PLUS
        (?\u29FB :+++ (:arithmetic :arithmetic-triple)
@@ -894,7 +897,7 @@ Should be a list of the form ((MODE ((REGEXP . GLYPH) ...)) ...)"
 
        ;; 254C ╌ DOUBLE DASH (MINUS)
        (?\u254C :-- (:arithmetic :arithmetic-double)
-                (:-- "--" haskell c c++ java javascript coffee))
+                (:-- "--" haskell c c++ rust java javascript coffee))
 
        ;;; Undefined
 
